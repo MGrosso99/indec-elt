@@ -1,6 +1,5 @@
 # Entorno aislado de dbt (/opt/dbt_venv). Fijá versiones tras el primer build.
 dbt-core==1.12.6
-dbt-core-experimental-parser==2.0.11
 dbt-postgres==1.11.0
 # CLI de Elementary (edr): genera el reporte HTML y manda alertas a Slack
-elementary-data==0.26.1
+elementary-data[postgres]==0.26.1
