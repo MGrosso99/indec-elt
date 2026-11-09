@@ -1,0 +1,23 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  # Métricas de Airflow (StatsD -> statsd-exporter)
+  - job_name: airflow
+    static_configs:
+      - targets: ["statsd-exporter:9102"]
+
+  # Estado de Postgres (conexiones, tamaño de bases, locks)
+  - job_name: postgres
+    static_configs:
+      - targets: ["postgres-exporter:9187"]
+
+  # CPU / memoria por contenedor
+  - job_name: cadvisor
+    static_configs:
+      - targets: ["cadvisor:8080"]
+
+  - job_name: prometheus
+    static_configs:
+      - targets: ["localhost:9090"]

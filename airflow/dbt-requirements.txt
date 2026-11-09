@@ -1,0 +1,5 @@
+# Entorno aislado de dbt (/opt/dbt_venv). Fijá versiones tras el primer build.
+dbt-core
+dbt-postgres
+# CLI de Elementary (edr): genera el reporte HTML y manda alertas a Slack
+elementary-data[postgres]

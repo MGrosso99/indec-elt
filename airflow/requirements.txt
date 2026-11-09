@@ -1,0 +1,7 @@
+# Providers que corren dentro del entorno de Airflow.
+# Después del primer build exitoso, fijá versiones exactas
+# (pip freeze | grep -E "cosmos|airbyte|slack") para builds reproducibles.
+astronomer-cosmos
+apache-airflow-providers-airbyte
+apache-airflow-providers-slack
+apache-airflow-providers-postgres
