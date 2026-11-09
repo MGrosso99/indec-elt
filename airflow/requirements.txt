@@ -1,7 +1,7 @@
 # Providers que corren dentro del entorno de Airflow.
 # Después del primer build exitoso, fijá versiones exactas
 # (pip freeze | grep -E "cosmos|airbyte|slack") para builds reproducibles.
-astronomer-cosmos
-apache-airflow-providers-airbyte
-apache-airflow-providers-slack
-apache-airflow-providers-postgres
+astronomer-cosmos==1.16.0
+apache-airflow-providers-airbyte==6.2.0
+apache-airflow-providers-slack==9.3.0
+apache-airflow-providers-postgres==6.3.0
