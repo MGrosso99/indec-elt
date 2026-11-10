@@ -1,0 +1,18 @@
+indec:
+  target: dev
+  outputs:
+    dev: &base
+      type: postgres
+      host: "{{ env_var('WAREHOUSE_HOST', 'postgres') }}"
+      port: 5432
+      user: "{{ env_var('WAREHOUSE_DB_USER') }}"
+      password: "{{ env_var('WAREHOUSE_DB_PASSWORD') }}"
+      dbname: "{{ env_var('WAREHOUSE_DB_NAME') }}"
+      schema: dev
+      threads: 4
+    prod:
+      <<: *base
+      schema: prod
+    ci:
+      <<: *base
+      schema: ci

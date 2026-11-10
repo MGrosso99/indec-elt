@@ -1,0 +1,24 @@
+name: indec
+version: "1.0.0"
+profile: indec
+
+model-paths: ["models"]
+snapshot-paths: ["snapshots"]
+seed-paths: ["seeds"]
+test-paths: ["tests"]
+
+models:
+  indec:
+    staging:
+      +schema: staging
+      +materialized: view
+    intermediate:
+      +schema: intermediate
+      +materialized: view
+    marts:
+      +schema: marts
+      +materialized: table
+      +grants:
+        select: ["metabase_reader"]
+  elementary:
+    +schema: elementary

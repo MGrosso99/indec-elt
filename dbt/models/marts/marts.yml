@@ -1,0 +1,22 @@
+version: 2
+
+models:
+  - name: dim_actividades
+    description: Una fila por actividad o producto del IPI manufacturero (código CLaNAE 2004 + descripción).
+    columns:
+      - name: actividad_id
+        data_tests: [unique, not_null]
+      - name: codigo_clanae
+        data_tests: [not_null]
+      - name: descripcion
+        data_tests: [not_null]
+
+  - name: fct_ipi_manufacturero
+    columns:
+      - name: actividad_id
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_actividades')
+                field: actividad_id
