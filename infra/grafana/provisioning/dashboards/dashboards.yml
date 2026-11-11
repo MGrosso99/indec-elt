@@ -1,0 +1,7 @@
+apiVersion: 1
+providers:
+  - name: indec-elt
+    folder: INDEC ELT
+    type: file
+    options:
+      path: /etc/grafana/provisioning/dashboards
