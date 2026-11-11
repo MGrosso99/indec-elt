@@ -40,7 +40,14 @@ def indec_elt_diario():
         render_config=RenderConfig(exclude=["package:elementary"]),
     )
 
-    sync >> transform   # primero Airbyte, después dbt
+    sync = AirbyteTriggerSyncOperator(
+        task_id="airbyte_sync",
+        airbyte_conn_id="airbyte_default",
+        connection_id="b4b46f3d-befa-4159-bdce-29fbdc18ac9b",
+        asynchronous=False,
+        timeout=1800,                              # espera hasta 30 min por el sync
+        execution_timeout=timedelta(minutes=40),   # corte duro de la task
+    )
 
 
 indec_elt_diario()
