@@ -16,3 +16,9 @@ indec:
     ci:
       <<: *base
       schema: ci
+elementary:
+  target: default
+  outputs:
+    default:
+      <<: *base
+      schema: prod_elementary

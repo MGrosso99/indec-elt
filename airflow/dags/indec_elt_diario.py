@@ -1,8 +1,14 @@
 from datetime import datetime, timedelta
-
 from airflow.sdk import dag
 from airflow.providers.airbyte.operators.airbyte import AirbyteTriggerSyncOperator
 from cosmos import DbtTaskGroup, ExecutionConfig, ProfileConfig, ProjectConfig, RenderConfig
+from airflow.providers.slack.notifications.slack_webhook import send_slack_webhook_notification
+from airflow.providers.standard.operators.bash import BashOperator
+
+alerta = send_slack_webhook_notification(
+    slack_webhook_conn_id="slack_alerts",
+    text=":red_circle: Falló {{ ti.task_id }} en {{ dag.dag_id }} ({{ ds }})",
+)
 
 DBT_DIR = "/opt/airflow/dbt"
 
@@ -16,6 +22,7 @@ DBT_DIR = "/opt/airflow/dbt"
         "retries": 3,
         "retry_delay": timedelta(minutes=10),
         "retry_exponential_backoff": True,
+        "on_failure_callback": alerta,
     },
     tags=["indec", "elt"],
 )
@@ -23,7 +30,7 @@ def indec_elt_diario():
     sync = AirbyteTriggerSyncOperator(
         task_id="airbyte_sync",
         airbyte_conn_id="airbyte_default",
-        connection_id="b4b46f3d-befa-4159-bdce-29fbdc18ac9b",
+        connection_id="9330ccea-3f5c-455c-9777-8abbb94a6129",
         asynchronous=False,
         timeout=1800,                              # espera hasta 30 min por el sync
         execution_timeout=timedelta(minutes=40),   # corte duro de la task
@@ -39,8 +46,19 @@ def indec_elt_diario():
         ),
         execution_config=ExecutionConfig(dbt_executable_path="/opt/dbt_venv/bin/dbt"),
         render_config=RenderConfig(exclude=["package:elementary"]),
+        operator_args={"retries": 0},   # un test que falla no se arregla reintentando
     )
 
-    sync >> transform  
+    monitor = BashOperator(
+        task_id="elementary_monitor",
+        bash_command=(
+            "/opt/dbt_venv/bin/edr monitor "
+            "--project-dir /opt/airflow/dbt --profiles-dir /opt/airflow/dbt "
+            "--slack-webhook $SLACK_WEBHOOK_URL"
+        ),
+        trigger_rule="all_done",   # corre aunque dbt haya fallado, para reportarlo
+    )
+
+    sync >> transform >> monitor 
 
 indec_elt_diario()
