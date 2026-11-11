@@ -13,8 +13,8 @@ DBT_DIR = "/opt/airflow/dbt"
     catchup=False,          # no corre solo los días pasados
     max_active_runs=1,      # nunca dos corridas a la vez
     default_args={
-        "retries": 2,
-        "retry_delay": timedelta(minutes=5),
+        "retries": 3,
+        "retry_delay": timedelta(minutes=10),
         "retry_exponential_backoff": True,
     },
     tags=["indec", "elt"],
