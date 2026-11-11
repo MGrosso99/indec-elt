@@ -54,7 +54,11 @@ def indec_elt_diario():
         bash_command=(
             "/opt/dbt_venv/bin/edr monitor "
             "--project-dir /opt/airflow/dbt --profiles-dir /opt/airflow/dbt "
-            "--slack-webhook $SLACK_WEBHOOK_URL"
+            "--slack-webhook $SLACK_WEBHOOK_URL "
+            "--orchestrator airflow "
+            "--job-name {{ dag.dag_id }} "
+            "--job-run-id {{ run_id }} "
+            "--job-run-url 'http://localhost:8080/dags/{{ dag.dag_id }}/runs/{{ run_id }}'"
         ),
         trigger_rule="all_done",   # corre aunque dbt haya fallado, para reportarlo
     )
