@@ -51,7 +51,7 @@ API INDEC ──GET──▶ Airbyte ──carga──▶ Postgres (raw) ──d
 | CI/CD | GitHub Actions + GHCR + GitHub Pages | Lint, tests y `dbt build` en cada PR; imagen y docs en cada merge |
 | Calidad de código | ruff, SQLFluff, pre-commit | Los mismos chequeos del CI, antes de cada commit |
 
-\* cAdvisor (métricas por contenedor) está configurado, pero solo reporta datos en Linux. Ver problema 13.
+\* cAdvisor (métricas por contenedor) se quitó: en Docker Desktop para Mac no reporta datos. Ver problema 13.
 
 ---
 
@@ -228,7 +228,7 @@ indec-elt/
 | 10 | Syncs colgados y `504 Gateway timeout` incluso con `limit=1` | Caída de la API del INDEC (en beta) | Pausar el DAG y esperar | Como `airbyte_sync` falló, dbt no corrió: los marts siguieron con los últimos datos buenos en lugar de datos rotos |
 | 11 | Con la API ya funcionando, el `409` seguía en cada intento | El proceso de la connection en Temporal (el motor de workflows interno de Airbyte) quedó trabado en "sincronizando". Ni cancelar por API, ni reiniciar los pods, ni marcar el job `cancelled` en la base lo destrabó | Recrear la connection (los datos de `raw` se conservan) y actualizar el `connection_id` del DAG | El estado real no siempre está donde parece: la tabla `jobs` era solo un registro; la decisión la tomaba Temporal |
 | 12 | Con la connection nueva, Airflow recibía `400 Bad Request` (el Sync now desde Airbyte andaba) | El UUID copiado en el DAG tenía un carácter de más | Corregir el `connection_id` | `409` = conflicto de estado; `400` = pedido mal formado. Que el recurso funcione desde otro lado acota el problema a la llamada |
-| 13 | El dashboard de cAdvisor en Grafana no muestra datos | Docker Desktop corre los contenedores en una máquina virtual: cAdvisor no ve sus carpetas reales, ni siquiera con el socket de Docker montado | Se descartó cAdvisor en Mac; CPU y memoria por contenedor con `docker stats` | No todas las herramientas se comportan igual en Mac que en Linux |
+| 13 | El dashboard de cAdvisor en Grafana no muestra datos | Docker Desktop corre los contenedores en una máquina virtual: cAdvisor no ve sus carpetas reales, ni siquiera con el socket de Docker montado | Se quitó cAdvisor del stack (además corría `privileged` y con el socket de Docker); CPU y memoria por contenedor con `docker stats` | No todas las herramientas se comportan igual en Mac que en Linux |
 | 14 | Un test forzado (`select 1`) no hizo fallar el DAG | Cosmos corre cada test junto con su modelo; un test sin `ref()` no queda asociado a ninguno y no se ejecuta | El test referencia el modelo: `select * from {{ ref('fct_ipi_manufacturero') }}` | La herramienta que orquesta decide qué se corre: un test que existe no es un test que se ejecuta |
 | 15 | La alerta de un test fallido iba a tardar más de una hora | Los 3 reintentos del DAG con backoff aplicaban también a las tasks de dbt | `operator_args={"retries": 0}` en el `DbtTaskGroup` | Reintentar sirve para fallas transitorias, no para datos incorrectos |
 | 16 | `elementary_monitor` falla con `No such option '--orchestrator'` | Se usaron opciones de `edr monitor` que no existen en la versión instalada (0.26.1) | Volver al comando anterior y `retries=0` en la task | Antes de agregar opciones a un CLI, verificarlas con `--help` en la versión instalada |

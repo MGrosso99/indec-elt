@@ -7,3 +7,4 @@ dbt/logs/
 edr_target/
 .venv/
 .DS_Store
+dbt/.user.yml

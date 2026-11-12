@@ -13,11 +13,6 @@ scrape_configs:
     static_configs:
       - targets: ["postgres-exporter:9187"]
 
-  # CPU / memoria por contenedor
-  - job_name: cadvisor
-    static_configs:
-      - targets: ["cadvisor:8080"]
-
   - job_name: prometheus
     static_configs:
       - targets: ["localhost:9090"]
