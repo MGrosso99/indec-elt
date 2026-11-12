@@ -5,9 +5,6 @@ Pipeline ELT diario, open source y gratuito, que extrae series estadísticas de 
 modela con dbt y las publica en Metabase. Todo orquestado con Airflow y levantado
 con Docker.
 
-Proyecto de práctica de **Data Engineering y DataOps**: ingesta, modelado, calidad
-de datos, observabilidad, orquestación y CI/CD de punta a punta.
-
 > Fuente de los datos: INDEC — Catálogo API-INDEC.
 
 - 📄 Documentación de los modelos (dbt docs): https://mgrosso99.github.io/indec-elt/
