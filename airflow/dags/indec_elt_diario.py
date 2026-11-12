@@ -1,9 +1,18 @@
 from datetime import datetime, timedelta
-from airflow.sdk import dag
+
 from airflow.providers.airbyte.operators.airbyte import AirbyteTriggerSyncOperator
-from cosmos import DbtTaskGroup, ExecutionConfig, ProfileConfig, ProjectConfig, RenderConfig
-from airflow.providers.slack.notifications.slack_webhook import send_slack_webhook_notification
+from airflow.providers.slack.notifications.slack_webhook import (
+    send_slack_webhook_notification,
+)
 from airflow.providers.standard.operators.bash import BashOperator
+from airflow.sdk import dag
+from cosmos import (
+    DbtTaskGroup,
+    ExecutionConfig,
+    ProfileConfig,
+    ProjectConfig,
+    RenderConfig,
+)
 
 alerta = send_slack_webhook_notification(
     slack_webhook_conn_id="slack_alerts",
