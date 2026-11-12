@@ -69,7 +69,7 @@ services:
   # cada una con su propio usuario. Ver infra/postgres/init-databases.sh
   # ---------------------------------------------------------------------------
   postgres:
-    image: postgres:16
+    image: postgres:16.15
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${POSTGRES_SUPERUSER}
@@ -170,7 +170,7 @@ services:
   # BI — profile "bi"
   # ---------------------------------------------------------------------------
   metabase:
-    image: metabase/metabase:${METABASE_VERSION:-latest}
+    image: metabase/metabase:${METABASE_VERSION:-v0.65.4}
     profiles: [bi]
     restart: unless-stopped
     environment:
@@ -193,7 +193,7 @@ services:
   # Observabilidad de infraestructura — profile "monitoring"
   # ---------------------------------------------------------------------------
   statsd-exporter:
-    image: prom/statsd-exporter:latest
+    image: prom/statsd-exporter:v0.31.0
     profiles: [monitoring]
     restart: unless-stopped
     command: ["--statsd.listen-udp=:9125", "--web.listen-address=:9102"]
@@ -201,7 +201,7 @@ services:
     networks: [elt]
 
   postgres-exporter:
-    image: prometheuscommunity/postgres-exporter:latest
+    image: prometheuscommunity/postgres-exporter:v0.20.1
     profiles: [monitoring]
     restart: unless-stopped
     environment:
@@ -212,7 +212,7 @@ services:
     networks: [elt]
 
   prometheus:
-    image: prom/prometheus:latest
+    image: prom/prometheus:v3.16.0
     profiles: [monitoring]
     restart: unless-stopped
     command:
@@ -226,7 +226,7 @@ services:
     networks: [elt]
 
   grafana:
-    image: grafana/grafana:latest
+    image: grafana/grafana:13.3.1
     profiles: [monitoring]
     restart: unless-stopped
     environment:
