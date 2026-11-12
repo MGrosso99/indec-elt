@@ -1,0 +1,48 @@
+name: ci
+on: pull_request
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install sqlfluff ruff
+      - run: ruff check airflow/
+      - run: sqlfluff lint dbt/models
+
+  dags:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -t airflow-ci ./airflow
+      - run: >
+          docker run --rm
+          -e WAREHOUSE_DB_USER=ci -e WAREHOUSE_DB_PASSWORD=ci -e WAREHOUSE_DB_NAME=ci
+          -v "$PWD/airflow:/opt/airflow/src" -v "$PWD/dbt:/opt/airflow/dbt"
+          airflow-ci bash -c "pip install pytest && python -m pytest /opt/airflow/src/tests -q"
+
+  dbt:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env: { POSTGRES_USER: elt, POSTGRES_PASSWORD: elt, POSTGRES_DB: warehouse }
+        ports: ["5432:5432"]
+        options: --health-cmd pg_isready --health-interval 5s --health-retries 10
+    env:
+      WAREHOUSE_HOST: localhost
+      WAREHOUSE_DB_USER: elt
+      WAREHOUSE_DB_PASSWORD: elt
+      WAREHOUSE_DB_NAME: warehouse
+    defaults:
+      run: { working-directory: dbt }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install -r ../airflow/dbt-requirements.txt
+      - run: dbt deps --profiles-dir .
+      - run: dbt seed --target ci --profiles-dir .
+      - run: dbt build --target ci --profiles-dir .

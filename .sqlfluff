@@ -1,0 +1,7 @@
+[sqlfluff]
+dialect = postgres
+templater = jinja
+
+[sqlfluff:templater:jinja]
+apply_dbt_builtins = True
+library_path = dbt/sqlfluff_libs

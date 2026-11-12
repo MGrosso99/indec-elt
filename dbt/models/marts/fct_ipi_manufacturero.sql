@@ -1,5 +1,6 @@
 select
-    {{ dbt_utils.generate_surrogate_key(['codigo_clanae', 'descripcion']) }} as actividad_id,
+    {{ dbt_utils.generate_surrogate_key(['codigo_clanae', 'descripcion']) }}
+        as actividad_id,
     fecha,
     periodo,
     codigo_clanae,

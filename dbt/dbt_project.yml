@@ -22,3 +22,6 @@ models:
         select: ["metabase_reader"]
   elementary:
     +schema: elementary
+seeds:
+  indec:
+    +schema: raw

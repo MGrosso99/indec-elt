@@ -13,7 +13,8 @@ con_conteo as (
 )
 
 select
-    {{ dbt_utils.generate_surrogate_key(['codigo_clanae', 'descripcion']) }} as actividad_id,
+    {{ dbt_utils.generate_surrogate_key(['codigo_clanae', 'descripcion']) }}
+        as actividad_id,
     codigo_clanae,
     descripcion,
     case
