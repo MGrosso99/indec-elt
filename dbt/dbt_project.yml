@@ -25,3 +25,18 @@ models:
 seeds:
   indec:
     +schema: raw
+    +quote_columns: true
+    ipi_manufacturero:
+      +column_types:
+        periodo: text
+        anio: integer
+        mes: integer
+        indicador: text
+        cuadro_web: text
+        codigo_CLaNAE_2004: text
+        descripcion: text
+        serie: text
+        tipo_de_indicador: text
+        unidad_de_medida: text
+        valor: numeric
+        valor_null: text

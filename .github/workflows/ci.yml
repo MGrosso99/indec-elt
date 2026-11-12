@@ -20,8 +20,9 @@ jobs:
       - run: >
           docker run --rm
           -e WAREHOUSE_DB_USER=ci -e WAREHOUSE_DB_PASSWORD=ci -e WAREHOUSE_DB_NAME=ci
+          -e AIRFLOW__COSMOS__ENABLE_CACHE=False
           -v "$PWD/airflow:/opt/airflow/src" -v "$PWD/dbt:/opt/airflow/dbt"
-          airflow-ci bash -c "pip install pytest && python -m pytest /opt/airflow/src/tests -q"
+          airflow-ci bash -c "airflow db migrate > /dev/null && pip install pytest && python -m pytest /opt/airflow/src/tests -vv"
 
   dbt:
     runs-on: ubuntu-latest
