@@ -5,7 +5,7 @@
 #                              dag-processor, triggerer)
 #  Profile "bi"              : metabase
 #  Profile "monitoring"      : statsd-exporter, prometheus, grafana,
-#                              postgres-exporter, cadvisor
+#                              postgres-exporter
 #
 #  Airbyte NO va acá: se instala aparte con `abctl` (corre en su propio cluster
 #  local) y Airflow le habla vía host.docker.internal:8000.
@@ -85,7 +85,9 @@ services:
       METABASE_DB_PASSWORD: ${METABASE_DB_PASSWORD}
       METABASE_READER_PASSWORD: ${METABASE_READER_PASSWORD}
     ports:
-      - "5432:5432"     # Airbyte (destino) y tu cliente SQL se conectan acá
+      # Todas las interfaces: Airbyte (en su propio cluster) entra por host.docker.internal.
+      # El resto de los servicios publica solo en 127.0.0.1 (no accesibles desde la red).
+      - "5432:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
       - ./infra/postgres/init-databases.sh:/docker-entrypoint-initdb.d/10-init-databases.sh:ro
@@ -118,7 +120,7 @@ services:
     <<: *airflow-common
     command: api-server
     ports:
-      - "8080:8080"
+      - "127.0.0.1:8080:8080"
     healthcheck:
       test: ["CMD", "curl", "--fail", "http://localhost:8080/api/v2/version"]
       interval: 30s
@@ -181,7 +183,7 @@ services:
       MB_DB_PASS: ${METABASE_DB_PASSWORD}
       JAVA_TIMEZONE: America/Argentina/Buenos_Aires
     ports:
-      - "3000:3000"
+      - "127.0.0.1:3000:3000"
     depends_on:
       postgres:
         condition: service_healthy
@@ -195,8 +197,7 @@ services:
     profiles: [monitoring]
     restart: unless-stopped
     command: ["--statsd.listen-udp=:9125", "--web.listen-address=:9102"]
-    ports:
-      - "9102:9102"
+    # Sin puerto publicado: Prometheus lo lee por la red interna "elt"
     networks: [elt]
 
   postgres-exporter:
@@ -210,18 +211,6 @@ services:
         condition: service_healthy
     networks: [elt]
 
-  cadvisor:
-    image: gcr.io/cadvisor/cadvisor:latest
-    profiles: [monitoring]
-    restart: unless-stopped
-    privileged: true
-    volumes:
-      - /:/rootfs:ro
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - /sys:/sys:ro
-      - /var/lib/docker/:/var/lib/docker:ro
-    networks: [elt]
-
   prometheus:
     image: prom/prometheus:latest
     profiles: [monitoring]
@@ -233,7 +222,7 @@ services:
       - ./infra/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - prometheus-data:/prometheus
     ports:
-      - "9090:9090"
+      - "127.0.0.1:9090:9090"
     networks: [elt]
 
   grafana:
@@ -248,7 +237,7 @@ services:
       - ./infra/grafana/provisioning:/etc/grafana/provisioning:ro
       - grafana-data:/var/lib/grafana
     ports:
-      - "3001:3000"
+      - "127.0.0.1:3001:3000"
     depends_on: [prometheus]
     networks: [elt]
 
