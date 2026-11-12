@@ -38,7 +38,7 @@ jobs:
       name: github-pages
     services:
       postgres:
-        image: postgres:16
+        image: postgres:16.15
         env: { POSTGRES_USER: elt, POSTGRES_PASSWORD: elt, POSTGRES_DB: warehouse }
         ports: ["5432:5432"]
         options: --health-cmd pg_isready --health-interval 5s --health-retries 10
