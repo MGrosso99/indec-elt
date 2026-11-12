@@ -3,18 +3,19 @@ version: 2
 models:
   - name: stg_indec__ipi_manufacturero
     description: IPI manufacturero tipado. Una fila por combinación de la clave del INDEC.
-    tests:
+    data_tests:
       - dbt_expectations.expect_compound_columns_to_be_unique:
-          column_list: ["periodo", "indicador", "cuadro_web", "codigo_clanae",
-                        "descripcion", "serie", "tipo_de_indicador"]
+          arguments:
+            column_list: ["periodo", "indicador", "cuadro_web", "codigo_clanae",
+                          "descripcion", "serie", "tipo_de_indicador"]
     columns:
       - name: periodo
-        tests: [not_null]
+        data_tests: [not_null]
       - name: fecha
-        tests: [not_null]
+        data_tests: [not_null]
       - name: serie
-        tests: [not_null]
+        data_tests: [not_null]
       - name: tipo_de_indicador
-        tests: [not_null]
+        data_tests: [not_null]
       - name: valor
         description: Puede ser null; el INDEC usa nulos para signos como "dato no disponible".

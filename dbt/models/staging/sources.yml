@@ -2,7 +2,7 @@ version: 2
 
 sources:
   - name: indec
-    schema: raw
+    schema: "{{ 'ci_raw' if target.name == 'ci' else 'raw' }}"
     loaded_at_field: _airbyte_extracted_at
     freshness:
       warn_after: {count: 36, period: hour}
