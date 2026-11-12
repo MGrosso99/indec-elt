@@ -1,0 +1,62 @@
+name: cd
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  packages: write
+  pages: write
+  id-token: write
+
+jobs:
+  imagen:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/build-push-action@v6
+        with:
+          context: ./airflow
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/indec-elt-airflow:latest
+            ghcr.io/${{ github.repository_owner }}/indec-elt-airflow:${{ github.sha }}
+
+  docs:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+    services:
+      postgres:
+        image: postgres:16
+        env: { POSTGRES_USER: elt, POSTGRES_PASSWORD: elt, POSTGRES_DB: warehouse }
+        ports: ["5432:5432"]
+        options: --health-cmd pg_isready --health-interval 5s --health-retries 10
+    env:
+      WAREHOUSE_HOST: localhost
+      WAREHOUSE_DB_USER: elt
+      WAREHOUSE_DB_PASSWORD: elt
+      WAREHOUSE_DB_NAME: warehouse
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install -r airflow/dbt-requirements.txt
+      - name: Preparar Postgres como en producción
+        env:
+          PGPASSWORD: elt
+        run: psql -h localhost -U elt -d warehouse -c "create role metabase_reader;"
+      - working-directory: dbt
+        run: |
+          dbt deps --profiles-dir .
+          dbt seed --target ci --profiles-dir .
+          dbt build --target ci --profiles-dir .
+          dbt docs generate --target ci --profiles-dir .
+      - uses: actions/upload-pages-artifact@v3
+        with: { path: dbt/target }
+      - uses: actions/deploy-pages@v4
