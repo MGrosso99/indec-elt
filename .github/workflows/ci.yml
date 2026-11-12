@@ -44,6 +44,10 @@ jobs:
       - uses: actions/setup-python@v5
         with: { python-version: "3.12" }
       - run: pip install -r ../airflow/dbt-requirements.txt
+      - name: Preparar Postgres como en producción
+        env:
+          PGPASSWORD: elt
+        run: psql -h localhost -U elt -d warehouse -c "create role metabase_reader;"
       - run: dbt deps --profiles-dir .
       - run: dbt seed --target ci --profiles-dir .
       - run: dbt build --target ci --profiles-dir .
