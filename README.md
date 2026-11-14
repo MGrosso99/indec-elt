@@ -142,10 +142,17 @@ make up-all              # + Prometheus (:9090) y Grafana (:3001)
 | Comando | Qué hace |
 | --- | --- |
 | `make up` / `make down` | Levanta / apaga el core (conserva datos) |
+| `make start` / `make start-all` | Prende Airbyte, espera a que responda y levanta el core (o todo) |
+| `make stop` | Baja todo y frena Airbyte, conservando datos. Si hay un run en curso, no hace nada (`FORCE=1` lo fuerza) |
 | `make ps` | Estado de los contenedores |
 | `make logs` | Logs de Airflow |
 | `make dbt-build` | `dbt build` dentro del contenedor |
 | `make nuke` | Apaga todo y **borra los datos** |
+
+**Uso ocasional:** el stack no necesita estar prendido siempre. Con `make stop`
+y cerrando Docker Desktop se liberan ~9 GB de RAM; con `make start` vuelve. Con
+`catchup=False`, al volver Airflow corre un solo run, que con full refresh ya
+trae todo lo nuevo. El primer `edr monitor` puede avisar freshness: es esperable.
 
 **Entorno de desarrollo (Python 3.12):**
 
